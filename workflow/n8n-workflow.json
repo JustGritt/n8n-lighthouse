@@ -1,0 +1,317 @@
+{
+    "nodes": [
+        {
+            "parameters": {
+                "collection": "links",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.mongoDb",
+            "typeVersion": 1.2,
+            "position": [
+                -208,
+                -80
+            ],
+            "id": "d420bf5f-4ef9-482a-97e8-7c68cdfee8bd",
+            "name": "Get Links",
+            "credentials": {
+                "mongoDb": {
+                    "id": "wXEvBKWioFcF3JGJ",
+                    "name": "MongoDB account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "url": "={{ $('Get Links').item.json.desktop.url }}",
+                "sendQuery": true,
+                "queryParameters": {
+                    "parameters": [
+                        {
+                            "name": "key",
+                            "value": "<your_api_key_here>"
+                        }
+                    ]
+                },
+                "options": {}
+            },
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.2,
+            "position": [
+                16,
+                -80
+            ],
+            "id": "2e3a0f2e-7575-45da-85ad-33d71f55b02f",
+            "name": "Generate Desktop",
+            "retryOnFail": true,
+            "waitBetweenTries": 5000,
+            "alwaysOutputData": true,
+            "onError": "continueRegularOutput"
+        },
+        {
+            "parameters": {
+                "mode": "combine",
+                "combineBy": "combineByPosition",
+                "numberInputs": 3,
+                "options": {}
+            },
+            "type": "n8n-nodes-base.merge",
+            "typeVersion": 3.2,
+            "position": [
+                464,
+                -96
+            ],
+            "id": "6658c1c9-97f9-49fa-a988-8b5df0431985",
+            "name": "Merge"
+        },
+        {
+            "parameters": {
+                "mode": "raw",
+                "jsonOutput": "={\n  \"country\": \"{{ $json.country }}\",\n  \"affiliate\": \"{{ $json.affiliate }}\",\n  \"url\": \"{{ $json.url }}\",\n  \"created_at\": \"{{ $json.created_at }}\",\n\"desktop\": {\n    \"performance\": {\n        \"score\": {{ $json.desktop.performance.score }}\n    },\n    \"accessibility\": {\n        \"score\": {{ $json.desktop.accessibility.score }}\n    },\n    \"best_practices\": {\n        \"score\": {{ $json.desktop.best_practices.score }}\n    },\n    \"seo\": {\n        \"score\": {{ $json.desktop.seo.score }}\n    }\n},\n\"mobile\": {\n    \"performance\": {\n        \"score\": {{ $json.mobile.performance.score }}\n    },\n    \"accessibility\": {\n        \"score\": {{ $json.mobile.accessibility.score }}\n    },\n    \"best_practices\": {\n        \"score\": {{ $json.mobile.best_practices.score }}\n    },\n    \"seo\": {\n        \"score\": {{ $json.mobile.seo.score }}\n    }\n}\n}",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.set",
+            "typeVersion": 3.4,
+            "position": [
+                688,
+                -80
+            ],
+            "id": "b4c8f37a-b667-44cf-a8e6-98841bb5edfc",
+            "name": "Format Desktop Report",
+            "retryOnFail": true,
+            "onError": "continueRegularOutput"
+        },
+        {
+            "parameters": {
+                "operation": "insert",
+                "collection": "reports",
+                "fields": "=country, affiliate, url, created_at, desktop, mobile",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.mongoDb",
+            "typeVersion": 1.2,
+            "position": [
+                912,
+                -80
+            ],
+            "id": "8ce06f1a-657b-46e4-8368-5b71609b803d",
+            "name": "Create Desktop Report",
+            "alwaysOutputData": false,
+            "retryOnFail": false,
+            "credentials": {
+                "mongoDb": {
+                    "id": "wXEvBKWioFcF3JGJ",
+                    "name": "MongoDB account"
+                }
+            },
+            "onError": "continueErrorOutput"
+        },
+        {
+            "parameters": {
+                "rule": {
+                    "interval": [
+                        {}
+                    ]
+                }
+            },
+            "type": "n8n-nodes-base.scheduleTrigger",
+            "typeVersion": 1.2,
+            "position": [
+                -432,
+                -80
+            ],
+            "id": "9c26b0cc-1e8c-4c66-8326-6f10099b1dfc",
+            "name": "Schedule Trigger"
+        },
+        {
+            "parameters": {
+                "url": "={{ $('Get Links').item.json.mobile.url }}",
+                "sendQuery": true,
+                "queryParameters": {
+                    "parameters": [
+                        {
+                            "name": "key",
+                            "value": "<your_api_key_here>"
+                        }
+                    ]
+                },
+                "options": {}
+            },
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.2,
+            "position": [
+                16,
+                112
+            ],
+            "id": "9ae8a70e-783d-4e44-99a3-31fd1084e7be",
+            "name": "Generate Mobile",
+            "retryOnFail": true,
+            "waitBetweenTries": 5000,
+            "notesInFlow": true,
+            "onError": "continueRegularOutput",
+            "notes": "Retry every hour if failed"
+        },
+        {
+            "parameters": {
+                "mode": "raw",
+                "jsonOutput": "={\n  \"country\": \"{{ $json.country }}\",\n  \"affiliate\": \"{{ $json.affiliate }}\",\n  \"url\": \"{{ $json.base_url }}\",\n  \"created_at\": \"{{ $today.format('yyyy-LL-dd') }}\"\n}",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.set",
+            "typeVersion": 3.4,
+            "position": [
+                240,
+                -272
+            ],
+            "id": "0a64217f-03ae-45b0-a476-01f1551c0240",
+            "name": "Init. Desktop links1"
+        },
+        {
+            "parameters": {
+                "mode": "raw",
+                "jsonOutput": "={\n    \"desktop\": {\n        \"performance\": {\n            \"score\": {{ $json.lighthouseResult.categories.performance.score || -1 }}\n        },\n        \"accessibility\": {\n            \"score\": {{ $json.lighthouseResult.categories.accessibility.score || -1 }}\n        },\n        \"best_practices\": {\n            \"score\": {{ $json.lighthouseResult.categories['best-practices'].score || -1 }}\n        },\n        \"seo\": {\n            \"score\": {{ $json.lighthouseResult.categories.seo.score || -1 }}\n        }\n    }\n  }",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.set",
+            "typeVersion": 3.4,
+            "position": [
+                240,
+                -80
+            ],
+            "id": "629a1c14-0818-4888-b5ce-e1ac3e8b4029",
+            "name": "Init. Desktop links"
+        },
+        {
+            "parameters": {
+                "mode": "raw",
+                "jsonOutput": "={\n    \"mobile\": {\n        \"performance\": {\n            \"score\": {{ $json.lighthouseResult.categories.performance.score || -1 }}\n        },\n        \"accessibility\": {\n            \"score\": {{ $json.lighthouseResult.categories.accessibility.score || -1 }}\n        },\n        \"best_practices\": {\n            \"score\": {{ $json.lighthouseResult.categories['best-practices'].score || -1 }}\n        },\n        \"seo\": {\n            \"score\": {{ $json.lighthouseResult.categories.seo.score || -1 }}\n        }\n    }\n  }",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.set",
+            "typeVersion": 3.4,
+            "position": [
+                240,
+                112
+            ],
+            "id": "f844b24d-b230-41e9-95b0-b0b7c5c3fed7",
+            "name": "Format Desktop Report1",
+            "retryOnFail": true,
+            "onError": "continueRegularOutput"
+        }
+    ],
+    "connections": {
+        "Get Links": {
+            "main": [
+                [
+                    {
+                        "node": "Init. Desktop links1",
+                        "type": "main",
+                        "index": 0
+                    },
+                    {
+                        "node": "Generate Desktop",
+                        "type": "main",
+                        "index": 0
+                    },
+                    {
+                        "node": "Generate Mobile",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Generate Desktop": {
+            "main": [
+                [
+                    {
+                        "node": "Init. Desktop links",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Merge": {
+            "main": [
+                [
+                    {
+                        "node": "Format Desktop Report",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Format Desktop Report": {
+            "main": [
+                [
+                    {
+                        "node": "Create Desktop Report",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Schedule Trigger": {
+            "main": [
+                [
+                    {
+                        "node": "Get Links",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Generate Mobile": {
+            "main": [
+                [
+                    {
+                        "node": "Format Desktop Report1",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Init. Desktop links1": {
+            "main": [
+                [
+                    {
+                        "node": "Merge",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Init. Desktop links": {
+            "main": [
+                [
+                    {
+                        "node": "Merge",
+                        "type": "main",
+                        "index": 1
+                    }
+                ]
+            ]
+        },
+        "Format Desktop Report1": {
+            "main": [
+                [
+                    {
+                        "node": "Merge",
+                        "type": "main",
+                        "index": 2
+                    }
+                ]
+            ]
+        }
+    },
+    "pinData": {},
+    "meta": {
+        "templateCredsSetupCompleted": true,
+        "instanceId": "e453d68ce5dd7daeb6f58d2498735ec156bd09f5f3b54026860945f476f85d62"
+    }
+}

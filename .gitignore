@@ -32,3 +32,6 @@ Thumbs.db
 # Logs
 logs/
 *.sqlite
+
+# Act
+.secrets

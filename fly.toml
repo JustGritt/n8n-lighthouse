@@ -1,0 +1,46 @@
+# fly.toml app configuration file generated for n8n-lighthouse on 2025-07-25T10:36:42+02:00
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = 'n8n-lighthouse'
+primary_region = 'cdg'
+
+[build]
+
+[http_service]
+  internal_port = 5678
+  force_https = true
+  auto_stop_machines = 'stop'
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ['app']
+
+[[vm]]
+  memory = '1gb'
+  cpu_kind = 'shared'
+  cpus = 1
+
+[env]
+  N8N_BASIC_AUTH_ACTIVE = "true"
+  N8N_BASIC_AUTH_USER = ""
+  N8N_BASIC_AUTH_PASSWORD = ""
+
+  # Required to prevent onboarding screen and lock down UI
+  N8N_USER_MANAGEMENT_DISABLED = "true"
+  N8N_DISABLE_PRODUCTION_MAIN_MENU = "true"
+  NODE_ENV = "production"
+
+  # Webhook config
+  N8N_HOST = "0.0.0.0"
+  N8N_PORT = "5678"
+  WEBHOOK_URL = "https://n8n-lighthouse.fly.dev"
+
+  # Optional
+  GENERIC_TIMEZONE = "Europe/Paris"
+  N8N_SKIP_WEBHOOK_DEREGISTRATION_SHUTDOWN = "true"
+
+# If you're using a persistent volume, make sure this is added:
+[mounts]
+  source = "n8n_data"
+  destination = "/home/node/.n8n"

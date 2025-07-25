@@ -1,0 +1,34 @@
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# n8n data (local development only)
+.n8n/
+
+# Docker
+*.log
+*.pid
+docker-compose.override.yml
+
+# Fly.io
+fly.toml.local
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Env files (keep secrets out of Git!)
+.env
+.env.*
+
+# VSCode (if you use it)
+.vscode/
+
+# GitHub workflows cache
+.github/workflows/*.log
+
+# Logs
+logs/
+*.sqlite
